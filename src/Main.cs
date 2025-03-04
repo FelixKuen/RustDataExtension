@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using API.Assembly;
+using Carbon;
 using Carbon.Components;
 using RustDataHarmonyMod;
 using UnityEngine;
@@ -22,7 +24,6 @@ namespace RustDataHarmony
 
         public void OnLoaded(OnHarmonyModLoadedArgs args)
         {
-            Debug.Log("HALLALAKJSDKLAJDSLKAJLDLAS");
             Start();
         }
 

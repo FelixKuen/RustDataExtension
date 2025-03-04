@@ -1,13 +1,21 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
+using Carbon;
+using Carbon.Hooks;
+using Carbon.Pooling;
+using ConVar;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
+using Oxide.Core;
 using RustDataHarmony;
 using UnityEngine;
+using Console = System.Console;
 
 namespace RustDataHarmonyMod
 {
@@ -20,20 +28,21 @@ namespace RustDataHarmonyMod
         public const string EntityDictionaryName = "EntityPaths";
         public const string SoundEnumName = "SoundEnum";
         public const string SoundDictionaryName = "SoundPaths";
-        public static readonly string FinishPath ="C:\\Plugin_Development\\RustDataHarmonyMod\\Finished\\";
+        public static readonly string FinishPath ="C:\\Plugin_Development\\FinishedRustData\\";
 
         public static void Start()
         {
-            Directory.CreateDirectory($"C:\\Plugin_Development\\RustDataHarmonyMod\\Finished\\");
+            Directory.CreateDirectory(FinishPath);
             StartPluginText();
             AppendItems();
             AppendEntites();
             AppendSounds();
             FinishPluginText();
-            
             PrintStringToFile();
             CompileCodeToDll();
         }
+
+     
 
         #region FileBuilding
 
@@ -44,10 +53,10 @@ using System.Collections.Generic;
 using Carbon;
 using API.Assembly;
 
-    namespace Carbon.Plugins {{
+    
 
-    [Hotloadable]
-	public class {PluginName} : ICarbonExtension
+    
+	public class {PluginName}
 	{{
 
         public void Awake(EventArgs args)
@@ -153,14 +162,58 @@ using API.Assembly;
 
             FileText.Append("   };\n");
         }
-
+       
         private static void FinishPluginText()
         {
-            FileText.Append(" \n } \n }");
+            FileText.Append(" \n }");
 
-
+           // FileText.Append("public interface IHookUtils{\n");
+            // Debug.Log($"LoadedPatches{Community.Runtime.HookManager.LoadedPatches.Count()}");
+            // Debug.Log($"LoadedDynamicHooks{Community.Runtime.HookManager.LoadedDynamicHooks.Count()}");
+            // Debug.Log($"LoadedStaticHooks{Community.Runtime.HookManager.LoadedStaticHooks.Count()}");
+            // Debug.Log($"InstalledPatches{Community.Runtime.HookManager.InstalledPatches.Count()}");
+            // Debug.Log($"InstalledDynamicHooks{Community.Runtime.HookManager.InstalledDynamicHooks.Count()}");
+            // Debug.Log($"InstalledDynamicHooks{Community.Runtime.HookManager.InstalledStaticHooks.Count()}");
+            
+            // foreach (var hook in Community.Runtime.HookManager.LoadedDynamicHooks)
+            // {
+            //     try
+            //     {
+            //         var hookex = hook as HookEx;
+            //
+            //         if (hookex == null)
+            //         {
+            //             Console.WriteLine("hookex is null!");
+            //             return;
+            //         }
+            //         Console.WriteLine("START");
+            //         Console.WriteLine($"hookex.HookName{hookex.HookName}");
+            //         Console.WriteLine($"hookex.TargetType{hookex.}");
+            //         
+            //
+            //         for (var index = 0; index < hookex.TargetMethodArgs.Length; index++)
+            //         {
+            //             var hookexTargetMethodArg = hookex.TargetMethodArgs[index];
+            //             if (hookexTargetMethodArg != null)
+            //                Console.WriteLine($"hookex.TargetMethodArgs{index} = {hookexTargetMethodArg.Name}");
+            //         }
+            //
+            //         Console.WriteLine("END");
+            //
+            //         
+            //     }
+            //     catch (Exception e)
+            //     {
+            //         Console.WriteLine(e);
+            //     }
+            //    
+            //     // FileText.Append($"private void {hook.HookName}()\n");
+            //     // FileText.Append($"{{Debug.Log({hook.HookName} called!);}}\n");
+            // }
+            // FileText.Append("}");
+           
         }
-
+        
         #endregion
         
         private static void PrintStringToFile()
@@ -170,9 +223,13 @@ using API.Assembly;
                 FileText.ToString());
         }
         
-        public static void CompileCodeToDll()
+       public static void CompileCodeToDll()
 {
-    SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(FileText.ToString());
+    // Ensure we use the latest C# version for compilation
+    var parseOptions = new CSharpParseOptions(LanguageVersion.LatestMajor);
+    
+    // Create SyntaxTree with C# 12+ support
+    SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(FileText.ToString(), parseOptions);
 
     // Path to .NET Framework 4.8 reference assemblies
     string frameworkPath = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\";
@@ -200,9 +257,14 @@ using API.Assembly;
     // Create compilation
     var compilation = CSharpCompilation.Create(
         PluginName,
-        new[] { syntaxTree },
+        new[] { syntaxTree }, // Ensure syntaxTree uses parseOptions
         references,
-        new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+        new CSharpCompilationOptions(
+            OutputKind.DynamicallyLinkedLibrary,
+            optimizationLevel: OptimizationLevel.Release,
+            allowUnsafe: true,
+            concurrentBuild: true
+        )
     );
 
     // Emit DLL
@@ -232,5 +294,6 @@ using API.Assembly;
         Debug.LogError("DLL compilation reported success, but file was not created.");
     }
 }
+
     }
 }

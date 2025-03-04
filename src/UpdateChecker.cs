@@ -18,7 +18,7 @@
             public static void Start()
             {
                 _timer = new Timer(async _ => await CheckForUpdate(), null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
-                CheckForUpdate();
+                //CheckForUpdate();
             }
 
             private static async Task CheckForUpdate()
