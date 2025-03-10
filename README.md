@@ -17,4 +17,4 @@ Here is a picture of how neat it will look like in your IDE:
 
 ![img.png](img.png)
 
-Opportunities are endless with this extension, I suggest making a wrapper function for the creating effects/items/entities
+Opportunities are endless with this extension, I suggest making a wrapper function for the the creation effects/items/entities
